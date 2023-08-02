@@ -93,19 +93,19 @@ async def codewars(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     if cell.col <= 26:
                         codewars_worksheet.update(chr(ord("@") + cell.col) + "3", now.strftime('%m/%d/%y %H:%M:%S'))
                         codewars_worksheet.update(
-                            chr(ord("@") + cell.col) + "4:" + chr(ord("@") + cell.col) + str(4 + len(kata_list)),
+                            chr(ord("@") + cell.col) + "5:" + chr(ord("@") + cell.col) + str(5 + len(kata_list)),
                             [[x] for x in kata_list])
                     else:
                         codewars_worksheet.update(chr((ord("@") + cell.col - ord("A")) // 26 + ord("@")) + chr(
                             (ord("@") + cell.col - ord("A")) % 26 + ord("A")) + "3", now.strftime('%m/%d/%y %H:%M:%S'))
                         codewars_worksheet.update(
                             chr((ord("@") + cell.col - ord("A")) // 26 + ord("@")) + chr(
-                                (ord("@") + cell.col - ord("A")) % 26 + ord("A")) + "4:" + chr(
+                                (ord("@") + cell.col - ord("A")) % 26 + ord("A")) + "5:" + chr(
                                 (ord("@") + cell.col - ord("A")) // 26 + ord("@")) + chr(
-                                (ord("@") + cell.col - ord("A")) % 26 + ord("A")) + str(4 + len(kata_list)),
+                                (ord("@") + cell.col - ord("A")) % 26 + ord("A")) + str(5 + len(kata_list)),
                             [[x] for x in kata_list])
                 else:
-                    kata_list = codewars_worksheet.col_values(cell.col)[3:]
+                    kata_list = codewars_worksheet.col_values(cell.col)[4:]
 
                 for i, kata in enumerate(kata_list):
                     kata_list[i] = str(i + 1) + ") " + kata_list[i]
@@ -232,7 +232,7 @@ if __name__ == '__main__':
     result_handler = CommandHandler('result', result)
     mid_term_handler = CommandHandler('mid_term', mid_term)
     codewars_handler = CommandHandler('codewars', codewars)
-    echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
+    # echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
     unknown_handler = MessageHandler(filters.COMMAND, unknown)
 
     application.add_handler(start_handler)
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     #    application.add_handler(result_handler)
     application.add_handler(mid_term_handler)
     application.add_handler(codewars_handler)
-    application.add_handler(echo_handler)
+    # application.add_handler(echo_handler)
     application.add_handler(unknown_handler)
 
     application.run_polling()

@@ -1,6 +1,9 @@
+import datetime
+
 from selenium import webdriver
 import time
 from bs4 import BeautifulSoup
+import gspread
 
 
 def get_kata(user):
@@ -40,8 +43,41 @@ def get_kata(user):
 
 
 if __name__ == '__main__':
-    user = "Nuri-benbarka"
-    katas = get_kata(user)
-    # do something with the HTML data
-    print(len(katas))
-    print(katas)
+    gc = gspread.service_account(filename="my-drive-575757-6d5fe30b79ac.json")
+
+    sh = gc.open("GS200_spring_2023")
+    codewars_worksheet = sh.worksheet("codewars")
+
+    users_list = codewars_worksheet.row_values(2)
+
+    now = datetime.datetime.now()
+    for j, user in enumerate(users_list):
+        if user != "":
+
+            try:
+                kata_list = get_kata(user)
+            except IndexError:
+                print(f"{user} not a valid user")
+                continue
+            except AttributeError:
+                print(f"{user} zero questions")
+                continue
+
+            i = j + 1
+
+            if i <= 26:
+                codewars_worksheet.update(chr(ord("@") + i) + "3", now.strftime('%m/%d/%y %H:%M:%S'))
+                codewars_worksheet.update(
+                    chr(ord("@") + i) + "5:" + chr(ord("@") + i) + str(5 + len(kata_list)),
+                    [[x] for x in kata_list])
+
+            else:
+                codewars_worksheet.update(chr((ord("@") + i - ord("A")) // 26 + ord("@")) + chr(
+                    (ord("@") + i - ord("A")) % 26 + ord("A")) + "3", now.strftime('%m/%d/%y %H:%M:%S'))
+                codewars_worksheet.update(
+                    chr((ord("@") + i - ord("A")) // 26 + ord("@")) + chr(
+                        (ord("@") + i - ord("A")) % 26 + ord("A")) + "5:" + chr(
+                        (ord("@") + i - ord("A")) // 26 + ord("@")) + chr(
+                        (ord("@") + i - ord("A")) % 26 + ord("A")) + str(5 + len(kata_list)),
+                    [[x] for x in kata_list])
+            print(f"{user} updated")
