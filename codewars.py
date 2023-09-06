@@ -1,14 +1,16 @@
 import datetime
 
-from selenium import webdriver
 import time
 from bs4 import BeautifulSoup
 import gspread
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def get_kata(user):
     # set up the driver
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
     url = "https://www.codewars.com/users/" + user + "/completed"
 
     driver.get(url)
@@ -23,18 +25,18 @@ def get_kata(user):
             break
         last_height = new_height
 
-    # get the full HTML data
+    # get the full HTML datamore than 10
     html = driver.page_source
 
     # Create a BeautifulSoup object to parse the HTML content
     soup = BeautifulSoup(html, 'html.parser')
 
     kata_list = []
-    for kata in \
-            soup.contents[0].contents[1].contents[0].contents[0].contents[3].contents[4].contents[1].contents[
-                0].contents[
-                1].contents:
-        kata_list.append(kata.contents[0].contents[0].contents[0].contents[1].contents[0])
+    for kata in soup.contents[0].contents[1].contents[0].contents[0].contents[3].contents[4].contents[1].contents[
+        0].contents[
+        1].contents:
+        kata_list.append(kata.contents[0].contents[0].contents[0].contents[1].contents[0] + " " +
+                         kata.contents[0].contents[0].contents[0].contents[0].contents[0].contents[0].contents[0])
 
     # close the driver
     driver.quit()
@@ -49,6 +51,7 @@ if __name__ == '__main__':
     codewars_worksheet = sh.worksheet("codewars")
 
     users_list = codewars_worksheet.row_values(2)
+    # users_list = ["hiiiiiibaa"]
 
     now = datetime.datetime.now()
     for j, user in enumerate(users_list):

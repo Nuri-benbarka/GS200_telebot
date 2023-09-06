@@ -88,7 +88,8 @@ async def codewars(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                 dur = now - last_time
 
-                if dur.total_seconds() > 3600 * 3:
+                # if dur.total_seconds() > 3600 * 3:
+                if False:
                     kata_list = get_kata(saved_user)
                     if cell.col <= 26:
                         codewars_worksheet.update(chr(ord("@") + cell.col) + "3", now.strftime('%m/%d/%y %H:%M:%S'))
@@ -134,42 +135,29 @@ async def result(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Example:
 /result muhammad@gmail.com 2200202020""")
     else:
-        try:
-
-            student_info = grades[context.args[1]]
-            if context.args[0].lower() != student_info[0]:  # remove spaces
-                await context.bot.send_message(chat_id=update.effective_chat.id,
-                                               text=f"Unknown email {context.args[0]} or student_id {context.args[1]}")
-            else:
+        if context.args[1] in result_grades:
+            student_info = result_grades[context.args[1]]
+            if context.args[0].lower() == student_info[result_headers.index("email") - 1].lower():  # remove spaces
                 print(update.effective_user.username)
                 print(update.effective_chat.full_name)
                 print(context.args[0])
                 print(context.args[1])
-                if student_info[3] + student_info[5] < student_info[4] + student_info[6]:
-                    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                                   text=f"""هذه هي النتيحة النهائية للطالب / الطالبة:
-                                                                       {student_info[1]}
-                                                                       الواجبات:             10/{student_info[2]} 
-                                                                       الامتحان النصفي: 30/{student_info[4]} 
-                                                                       الامتحان العملي:  20/{student_info[6]}
-                                                                       الامتحان النهائي:  40/{student_info[7]} 
-                                                                       الاضافي:               5/{student_info[8]} 
-                                                                       المجموع:       100/{student_info[11]} 
+                await context.bot.send_message(chat_id=update.effective_chat.id,
+                                               text=f"""هذه هي النتيحة النهائية للطالب / الطالبة:
+                                                                       {student_info[result_headers.index("الاسم") - 1]}
+                                                                       الواجبات:             10/{student_info[result_headers.index("HW / 10") - 1]} 
+                                                                       الامتحان النصفي: 25/{student_info[result_headers.index("mid-term / 25") - 1]} 
+                                                                       الامتحان العملي:  30/{student_info[result_headers.index("lab / 30") - 1]}
+                                                                       الامتحان النهائي:  35/{student_info[result_headers.index("final / 35") - 1]} 
+                                                                       الاضافي:               5/{student_info[result_headers.index("Extra / 5") - 1]} 
+                                                                       المجموع:       100/{student_info[result_headers.index("Total / 100") - 1]} 
                     """)
-                else:
-                    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                                   text=f"""هذه هي النتيحة النهائية للطالب / الطالبة:
-                                                              {student_info[1]}
-                                                              الواجبات:              10/{student_info[2]} 
-                                                              الامتحان النصفي:  25/{student_info[3]} 
-                                                              الامتحان العملي:  25/{student_info[5]}
-                                                              الامتحان النهائي:  40/{student_info[7]} 
-                                                              الاضافي:                 5/{student_info[8]} 
-                                                              المجموع:        100/{student_info[11]} 
-                                                    """)
-        except KeyError:
+            else:
+                await context.bot.send_message(chat_id=update.effective_chat.id,
+                                               text=f"Email {context.args[0]} and student id {context.args[1]} don't match")
+        else:
             await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text=f"Unknown email {context.args[0]} or student_id {context.args[1]}")
+                                           text=f"Unknown student_id {context.args[1]}")
 
 
 async def mid_term(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -180,31 +168,75 @@ async def mid_term(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Example:
 /mid_term muhammad@gmail.com 2200202020""")
     else:
-        try:
-            student_info = grades[context.args[1]]
-            if context.args[0].lower() != student_info[0]:  # remove spaces
-                await context.bot.send_message(chat_id=update.effective_chat.id,
-                                               text=f"Unknown email {context.args[0]} or student id {context.args[1]}")
-            else:
+        if context.args[1] in mid_grades:
+            student_info = mid_grades[context.args[1]]
+            if context.args[0].lower() == student_info[headers.index("email") - 1].lower():  # remove spaces
                 print(update.effective_user.username)
                 print(update.effective_chat.full_name)
                 print(context.args[0])
                 print(context.args[1])
                 await context.bot.send_message(chat_id=update.effective_chat.id,
                                                text=f"""هذه هي النتيحة الامتحان النصفي للطالب / الطالبة:
-                                                                                           {student_info[1]}
-                                                                       السؤال الاول:      6/{student_info[2]} 
-                                                                       السؤال الثاني:   10/{student_info[10]} 
-                                                                       السؤال الثالث:   10/{student_info[11]}
-                                                                       المجموع:         25/{student_info[12]} 
+                                                                                           {student_info[headers.index("الاسم") - 1]}
+                                                                       السؤال الاول:      6/{student_info[headers.index("Q1") - 1]} 
+                                                                       السؤال الثاني:   10/{student_info[headers.index("Q2") - 1]} 
+                                                                       السؤال الثالث:   10/{student_info[headers.index("Q3") - 1]}
+                                                                       المجموع:         25/{student_info[headers.index("Total") - 1]} 
                     """)
-        except KeyError:
+            else:
+                await context.bot.send_message(chat_id=update.effective_chat.id,
+                                               text=f"Email {context.args[0]} and student id {context.args[1]} don't match")
+        else:
             await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text=f"Unknown email {context.args[0]} or student_id {context.args[1]}")
+                                           text=f"Unknown student_id {context.args[1]}")
+
+
+async def final(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) != 2:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text="""Please use the command in this format:
+/mid_term email student_id 
+Example:
+/mid_term muhammad@gmail.com 2200202020""")
+    else:
+        if context.args[1] in final_grades:
+            student_info = final_grades[context.args[1]]
+            if context.args[0].lower() == student_info[headers.index("email") - 1].lower():  # remove spaces
+                print(update.effective_user.username)
+                print(update.effective_chat.full_name)
+                print(context.args[0])
+                print(context.args[1])
+                await context.bot.send_message(chat_id=update.effective_chat.id,
+                                               text=f"""هذه هي النتيحة الامتحان النهائي النظري للطالب / الطالبة:
+                                                                                           {student_info[headers.index("الاسم") - 1]}
+                                                                       السؤال الاول:      4/{student_info[headers.index("Q1") - 1]} 
+                                                                       السؤال الثاني:   16/{student_info[headers.index("Q2") - 1]} 
+                                                                       السؤال الثالث:   15/{student_info[headers.index("Q3") - 1]}
+                                                                       المجموع:         35/{student_info[headers.index("Total") - 1]} 
+                    """)
+            else:
+                await context.bot.send_message(chat_id=update.effective_chat.id,
+                                               text=f"Email {context.args[0]} and student id {context.args[1]} don't match")
+        else:
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f"Unknown student_id {context.args[1]}")
 
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
+
+
+def get_grades(sheet_lists, headers):
+    header_indeces = []
+    for header in headers:
+        header_indeces.append(sheet_lists[0].index(header))
+    grades = {}
+    for row in sheet_lists[1:]:
+        if row[header_indeces[0]].isnumeric():
+            grades[row[header_indeces[0]]] = [float(row[h]) if is_numeric(row[h]) else row[h] for h in
+                                              header_indeces[1:]]
+
+    return grades
 
 
 if __name__ == '__main__':
@@ -212,18 +244,19 @@ if __name__ == '__main__':
 
     sh = gc.open("GS200_spring_2023")
 
-    worksheet = sh.worksheet("Midterm")
+    mid_lists = sh.worksheet("Midterm").get_all_values()
+    final_lists = sh.worksheet("Final").get_all_values()
+    result_lists = sh.worksheet("Total").get_all_values()
     codewars_worksheet = sh.worksheet("codewars")
 
-    list_of_lists = worksheet.get_all_values()
+    headers = ["رقم القيد", "الاسم", "email", "Q1", "Q2", "Q3", "Total"]
+    result_headers = ["رقم القيد", "الاسم", "email", "mid-term / 25", "final / 35", "HW / 10", "lab / 30", "Extra / 5",
+                      "Total / 100"]
 
-    grades = {}
-    for row in list_of_lists:
-        if row[1].isnumeric():
-            num = [float(x) if is_numeric(x) else 0 for x in row[4:15]]
-            grades[row[1]] = [row[2].strip().lower()] + [row[3]] + num + [row[15]]
+    mid_grades = get_grades(mid_lists, headers)
+    final_grades = get_grades(final_lists, headers)
+    result_grades = get_grades(result_lists,result_headers)
 
-    print(grades)
     token = json.load(open("tele_token.json"))
     application = ApplicationBuilder().token(token["TELE_API_KEY"]).build()
 
@@ -231,14 +264,16 @@ if __name__ == '__main__':
     caps_handler = CommandHandler('caps', caps)
     result_handler = CommandHandler('result', result)
     mid_term_handler = CommandHandler('mid_term', mid_term)
+    final_handler = CommandHandler('final', final)
     codewars_handler = CommandHandler('codewars', codewars)
     # echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
     unknown_handler = MessageHandler(filters.COMMAND, unknown)
 
     application.add_handler(start_handler)
     application.add_handler(caps_handler)
-    #    application.add_handler(result_handler)
+    application.add_handler(result_handler)
     application.add_handler(mid_term_handler)
+    application.add_handler(final_handler)
     application.add_handler(codewars_handler)
     # application.add_handler(echo_handler)
     application.add_handler(unknown_handler)
